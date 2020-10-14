@@ -31,6 +31,11 @@ def create_mif_file(rom,width,depth,output_name):
     dir_length = int(log2(depth) + 1)
     for rom_dir,data in rom.items():
         data_str += data_format.format(rom_dir=rom_dir.zfill(dir_length)  ,data=str(data))
+    if len(rom) < depth:
+        default = "".zfill(width)
+        rem_0 = str(bin(len(rom))).replace("0b","").zfill(dir_length)
+        rem_1 = str(bin(depth - 1)).replace("0b","").zfill(dir_length)
+        data_str += "\t[{ini}..{end}]  :   {default};\n".format(ini=rem_0,end=rem_1,default=default)
     mif = mif.replace("{data}",str(data_str))
     output = open(output_name + ".mif","w")
     output.write(mif)
