@@ -31,11 +31,15 @@ def create_mif_file(rom,width,depth,output_name):
     dir_length = int(log2(depth) + 1)
     for rom_dir,data in rom.items():
         data_str += data_format.format(rom_dir=rom_dir.zfill(dir_length)  ,data=str(data))
+    print(len(rom), depth)
     if len(rom) < depth:
         default = "".zfill(width)
         rem_0 = str(bin(len(rom))).replace("0b","").zfill(dir_length)
         rem_1 = str(bin(depth - 1)).replace("0b","").zfill(dir_length)
-        data_str += "\t[{ini}..{end}]  :   {default};\n".format(ini=rem_0,end=rem_1,default=default)
+        if rem_0 == rem_1:
+            data_str += data_format.format(rom_dir=rem_0  ,data=default)
+        else:
+            data_str += "\t[{ini}..{end}]  :   {default};\n".format(ini=rem_0,end=rem_1,default=default)
     mif = mif.replace("{data}",str(data_str))
     output = open(output_name + ".mif","w")
     output.write(mif)
@@ -76,7 +80,7 @@ def main():
     # depth_calc = len(rom)
     ###################################################
     # Igual se puede calcular el parametro width
-    width = len(list(rom.keys())[0])
+    width = len(list(rom.values())[0])
     rom_sorted = sorted(rom.items(),key=lambda x: int(x[0],2))
     rom_sorted = {rom_s[0]: rom_s[1] for rom_s in rom_sorted }
     create_mif_file(rom_sorted,width,depth,output_name)
