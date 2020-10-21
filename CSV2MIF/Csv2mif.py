@@ -14,8 +14,8 @@ def extract_colum_data(rows,first_indx, second_indx):
 def extract_dir_content(rows,dir_range,content_range):
     data = {}
     for row in rows:
-        rom_dir = "".join(row[dir_range[0]:dir_range[1]])
-        rom_content = "".join(row[content_range[0]:content_range[1]])
+        rom_dir = "".join(row[dir_range[0] : dir_range[1] if len(dir_range) == 2 else len(row)])
+        rom_content = "".join(row[content_range[0]:content_range[1] if len(content_range) == 2 else len(row)])
         data[rom_dir] = rom_content
     return data
 
@@ -52,33 +52,35 @@ def create_rom_vhd(rom):
 def main():
     # Modificable data ##############################
     # Rango de columnas donde se encuentran los datos, asi como aparece en el excel
-    row_range = (3,42)
-    # Rango donde se encuentra la direccion, se agrega el + 1 para darle acceso correcto a la lista 
-    # Se inicia contando desde 0. 
-    dir_range = (0,5 + 1)
-    data_range = (6,14 + 1)
+    row_range = (4,11)
+    # Rango donde se encuentra la direccion, 
+    # Se inicia contando desde 0. y el segundo numero es el primero + el numero de columnas.
+    #Si no se pone se entiende que va desde n hasta el fin.
+    dir_range = (0,3)
+    data_range = (3,)
     width = 9
     depth = 64
     # Archivo de entrada
-    filename = "P3.csv"
+    filename = "P4.csv"
     # Nombre del archivo salida sin extension
-    output_name = "rom_content" 
+    output_name = "rom_content_2" 
     ###############################################
     rows = open_csv(filename)
     data = extract_row_data(rows,row_range)
-    rom = extract_dir_content(data,(0,6),(6,15))
+    rom = extract_dir_content(data,dir_range,data_range)
     # Se puede calcular el valor depth
     # Utilizando un valor potencia de 2
-    # depth_calc = 2 ** ceil(log2(len(rom)))
+    depth_calc = 2 ** ceil(log2(len(rom)))
+    depth = depth_calc
     # O simplemente con la longitud de nuestos valores
     # depth_calc = len(rom)
     ###################################################
     # Igual se puede calcular el parametro width
-    # width = len(rom[0])
+    width = len(list(rom.keys())[0])
     rom_sorted = sorted(rom.items(),key=lambda x: int(x[0],2))
     rom_sorted = {rom_s[0]: rom_s[1] for rom_s in rom_sorted }
-    #create_mif_file(rom_sorted,width,depth,output_name)
-    create_rom_vhd(rom_sorted)
+    create_mif_file(rom_sorted,width,depth,output_name)
+    #create_rom_vhd(rom_sorted)
 
 if __name__ == "__main__":
     main()
