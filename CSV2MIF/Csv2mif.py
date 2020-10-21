@@ -27,7 +27,7 @@ def create_mif_file(rom,width,depth,output_name):
     mif = mif.replace("{WIDTH}",str(width))
     mif = mif.replace("{DEPTH}",str(depth))
     data_str = ""
-    data_format = "\t{rom_dir}  :   {data};\n"
+    data_format = "\t {rom_dir}  :   {data};\n"
     dir_length = int(log2(depth) + 1)
     for rom_dir,data in rom.items():
         data_str += data_format.format(rom_dir=rom_dir.zfill(dir_length)  ,data=str(data))
@@ -39,6 +39,15 @@ def create_mif_file(rom,width,depth,output_name):
     mif = mif.replace("{data}",str(data_str))
     output = open(output_name + ".mif","w")
     output.write(mif)
+
+def create_rom_vhd(rom):
+    data_format = '\t internal_mem({index}) <= "{liga}"  & {salida};\n'
+    data_str = ""
+    for rom_dir,data in rom.items():
+        data_str += data_format.format(index=int(str(rom_dir),2), liga=data[:3], salida=data[3:len(data)])
+    vhd_file = open("vhd_format.txt","w")
+    vhd_file.write(data_str)
+
 
 def main():
     # Modificable data ##############################
@@ -68,7 +77,8 @@ def main():
     # width = len(rom[0])
     rom_sorted = sorted(rom.items(),key=lambda x: int(x[0],2))
     rom_sorted = {rom_s[0]: rom_s[1] for rom_s in rom_sorted }
-    create_mif_file(rom_sorted,width,depth,output_name)
+    #create_mif_file(rom_sorted,width,depth,output_name)
+    create_rom_vhd(rom_sorted)
 
 if __name__ == "__main__":
     main()
